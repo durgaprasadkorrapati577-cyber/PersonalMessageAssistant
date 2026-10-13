@@ -1,4 +1,4 @@
-
+```yaml
 name: Build Android APK
 
 on:
@@ -21,30 +21,19 @@ jobs:
           distribution: temurin
           java-version: "17"
 
-      - name: Set up Gradle
-        uses: gradle/actions/setup-gradle@v4
-
       - name: Set up Android SDK
         uses: android-actions/setup-android@v3
+        with:
+          api-level: 35
+          build-tools: 35.0.0
+          components: |
+            platform-tools
+            platforms;android-35
 
-      - name: Install Android SDK packages
-        run: |
-          SDK_ROOT="${ANDROID_SDK_ROOT:-${ANDROID_HOME:-/usr/local/lib/android/sdk}}"
-          SDKMANAGER="$SDK_ROOT/cmdline-tools/latest/bin/sdkmanager"
-
-          if [ ! -x "$SDKMANAGER" ]; then
-            echo "Android sdkmanager not found at $SDKMANAGER"
-            exit 1
-          fi
-
-          yes | "$SDKMANAGER" --sdk_root="$SDK_ROOT" --licenses || true
-
-          "$SDKMANAGER" --sdk_root="$SDK_ROOT" --install \
-            "platform-tools" \
-            "platforms;android-35" \
-            "build-tools;35.0.0"
-
-          yes | "$SDKMANAGER" --sdk_root="$SDK_ROOT" --licenses
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: "8.9"
 
       - name: Build debug APK
         run: gradle assembleDebug
@@ -55,3 +44,4 @@ jobs:
           name: personal-message-assistant-debug-apk
           path: app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
+```
