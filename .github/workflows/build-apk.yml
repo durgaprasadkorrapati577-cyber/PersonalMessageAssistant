@@ -29,6 +29,7 @@ jobs:
           components: |
             platform-tools
             platforms;android-35
+             cmdline-tools;latest
 
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v4
