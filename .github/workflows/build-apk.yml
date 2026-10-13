@@ -1,25 +1,57 @@
-```yaml
-      - name: Install Android SDK platform and build tools
+
+name: Build Android APK
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install Android SDK packages
         run: |
           SDK_ROOT="${ANDROID_SDK_ROOT:-${ANDROID_HOME:-/usr/local/lib/android/sdk}}"
           SDKMANAGER="$SDK_ROOT/cmdline-tools/latest/bin/sdkmanager"
 
           if [ ! -x "$SDKMANAGER" ]; then
-            SDKMANAGER="$(find "$SDK_ROOT/cmdline-tools" -type f -name sdkmanager | head -n 1)"
-          fi
-
-          if [ ! -x "$SDKMANAGER" ]; then
-            echo "Could not find Android sdkmanager"
+            echo "Android sdkmanager not found at $SDKMANAGER"
             exit 1
           fi
 
           yes | "$SDKMANAGER" --sdk_root="$SDK_ROOT" --licenses || true
 
           "$SDKMANAGER" --sdk_root="$SDK_ROOT" --install \
-            "cmdline-tools;latest" \
             "platform-tools" \
             "platforms;android-35" \
             "build-tools;35.0.0"
 
           yes | "$SDKMANAGER" --sdk_root="$SDK_ROOT" --licenses
-```
+
+      - name: Build debug APK
+        run: gradle assembleDebug
+
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: personal-message-assistant-debug-apk
+          path: app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
