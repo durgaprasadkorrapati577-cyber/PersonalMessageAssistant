@@ -42,7 +42,7 @@ jobs:
 
           echo "Using SDK manager: $SDKMANAGER"
 
-          yes | "$SDKMANAGER" --sdk_root="$SDK_ROOT" --licenses
+          yes | "$SDKMANAGER" --sdk_root="$SDK_ROOT" --licenses || true
 
           "$SDKMANAGER" --sdk_root="$SDK_ROOT" --install \
             "platform-tools" \
